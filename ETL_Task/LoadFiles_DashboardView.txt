@@ -1,0 +1,71 @@
+fact_sales
+ 
+order_id	
+customer_id	
+product_id	
+quantity	
+amount	
+currency	
+amount_usd	
+order_date	
+price_tier	
+net_revenue	
+is_returned
+ 
+rule 10: amount_usd = amount × rate_to_usd; 
+rule 12: price_tier low/med/high; 
+rule 14: is_returned from left-join on returns
+ 
+------------------------------------------------------------------------
+ 
+dim_customers - standardised customer dimension
+customer_id	
+name	
+email_present	
+city	
+country	
+is_premium	
+signup_date
+ 
+rule 9: email_present; 
+rule 8: country mapped to canonical - "U.S.A" → USA. 
+Note C0002's is_premium is false even though email is null → email_present=false)
+ 
+------------------------------------------------------------------------
+ 
+dim_products — standardised product dimension
+product_id	
+product_name	
+category	
+unit_price	
+currency	
+unit_price_usd	
+price_tier
+ 
+------------------------------------------------------------------------
+feature_customers - ML-ready, one row per customer - This one for Model training. Skip it now . But form it. 
+customer_id	
+total_orders	
+total_spend_usd	
+avg_order_value	
+return_rate	
+days_since_last_order	
+sessions_count	
+cart_abandon_rate
+ 
+rules 15–16: order aggregates + web-event aggregates like sessions_count, cart_abandon_rate
+ 
+------------------------------------------------------------------------
+ 
+Dashboard View :
+    - How much total revenue?           (KPI)
+    - What is the return rate / churn?  (KPI)
+    - Revenue by price tier            (bar)
+    - Revenue by country              (bar, needs a JOIN)
+    - Revenue over time (by order date)                (line)
+ 
+  Load target is MySQL (to_sql)          
+  Dashboard connects & reads MySQL       
+  5 required visuals present             
+  Aggregation done in SQL
+  No hard-coded secret / query cached
